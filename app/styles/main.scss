@@ -364,3 +364,23 @@ main {
   src: url(/fonts/RobotoCondensed-BoldItalic.eot);
   src: local('Roboto Condensed Bold Italic'), local('RobotoCondensed-BoldItalic'), url(/fonts/RobotoCondensed-BoldItalic.eot) format('embedded-opentype'), url(/fonts/RobotoCondensed-BoldItalic.woff) format('woff');
 }
+
+
+
+#gallery {
+  margin: 0;
+  padding: 0;
+}
+
+#gallery li {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  width: 150px;
+  height: 150px;
+  display: inline-block;
+
+  &:before {
+    display: none;
+  }
+}

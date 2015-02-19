@@ -48,3 +48,141 @@
     }
   });
 })();
+
+
+(function () {
+
+	"use strict";
+
+		var photo = document.getElementById('photo');
+		var camera = document.getElementById('camera');
+		var map = document.getElementById('map');
+		var gallery = document.getElementById('gallery');
+		var mainView = document.getElementById('main-view');
+		var photoView = document.getElementById('photo-view');
+		var position;
+		var data = [
+		];
+
+		camera.addEventListener("change", newPhoto, false);
+		window.addEventListener("popstate", newState, false);
+		fillGallery();
+
+		function fillGallery () {
+			var savedData = readData();
+			if (savedData) {
+				data = savedData;
+				buildGallery(data);
+			}
+		}
+
+		function buildGallery (data) {
+
+			if (gallery.children.length > 0) {
+				gallery.innerHTML = "";
+			}
+
+			var fragment = document.createDocumentFragment();
+
+			data.forEach(function (item, index) {
+
+				var link = document.createElement("a");
+				historify(link, index);
+
+				var img = document.createElement("img");
+				img.src = item.image;
+
+				link.appendChild(img);
+
+				var li = document.createElement("li");
+				li.appendChild(link);
+
+				fragment.appendChild(li)
+			});
+
+			gallery.appendChild(fragment);
+		}
+
+		function historify (link, index) {
+			link.href = "/" + index;
+			link.addEventListener("click", function (e) {
+				e.preventDefault();
+
+				history.pushState(
+				    index, // data
+				    "photo " + index, // name
+				    link.href); // url
+
+				showPhoto(getPhoto(index));
+			});
+		}
+
+		function newState (e) {
+			var index = e.state;
+			if (index) {
+				showPhoto(getPhoto(index));
+			}
+		}
+
+		function getPhoto (index) {
+			return data[index].image;
+		}
+
+		function showPhoto (dataURL) {
+			photo.src = dataURL;
+      		photo.removeAttribute("hidden");
+		}
+
+		function newPhoto () {
+			var file = this.files[0];
+	    	var reader = new FileReader();
+			reader.onload = photoReady;
+	    	reader.readAsDataURL(file);
+		}
+
+		function photoReady (e) {
+			// e.target.result contains the Base64 DataURL
+			showPhoto(e.target.result)
+      		getPosition();
+		}
+
+		function getPosition () {
+			navigator.geolocation.getCurrentPosition(function (newPosition) {
+				position = newPosition;
+				showMap();
+				haveAllData();
+
+			}, function () {}, {
+				maximumAge: 0
+			});
+		}
+
+		function haveAllData () {
+			data.push({
+				image: photo.src,
+				position: position
+			});
+			saveData(data);
+			buildGallery(data);
+		}
+
+		function saveData (data) {
+			window.localStorage.setItem("serge-camera", JSON.stringify(data));
+		}
+
+		function readData () {
+			return JSON.parse(
+				window.localStorage.getItem("serge-camera")
+			);
+		}
+
+		function showMap () {
+			var lat = position.coords.latitude;
+			var lng = position.coords.longitude;
+
+			map.src = 'http://maps.googleapis.com/maps/api/staticmap?zoom=15&size=300x300&maptype=roadmap&markers=color:red%7Clabel:A%7C' + lat + ',' + lng+ '&sensor=false';
+
+			map.removeAttribute("hidden");
+		}
+
+}());
