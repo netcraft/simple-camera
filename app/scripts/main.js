@@ -113,19 +113,23 @@
 				    "photo " + index, // name
 				    link.href); // url
 
-				showPhoto(getPhoto(index));
+				showPhotoData(index);
 			});
 		}
 
 		function newState (e) {
 			var index = e.state;
+			console.log("newState=%o", e);
 			if (index) {
-				showPhoto(getPhoto(index));
+				showPhotoData(index);
 			}
 		}
 
-		function getPhoto (index) {
-			return data[index].image;
+		function showPhotoData (index) {
+			var photo = data[index];
+			console.log("showPhotoData=%o", index);
+			showPhoto(photo.image);
+			showMap(photo.position);
 		}
 
 		function showPhoto (dataURL) {
@@ -149,7 +153,7 @@
 		function getPosition () {
 			navigator.geolocation.getCurrentPosition(function (newPosition) {
 				position = newPosition;
-				showMap();
+				showMap(position);
 				haveAllData();
 
 			}, function () {}, {
@@ -176,7 +180,7 @@
 			);
 		}
 
-		function showMap () {
+		function showMap (position) {
 			var lat = position.coords.latitude;
 			var lng = position.coords.longitude;
 
